@@ -7,6 +7,18 @@ function Game(){
     const [player,setPlayer] = React.useState("CercleElement");
   //show modal is the element that can show a modal if there is an element
     const [showModal,setShowModal]=React.useState(false)
+
+  //
+    const [withRobot,setWithRobot] = React.useState(false)
+
+  //
+    const [x,setX]=React.useState(0);
+
+  //
+    const [replayR,setReplay]=React.useState(false)
+
+
+
   //index is table of possible possibilities to win
     const index=[
       [0,1,2],
@@ -28,6 +40,38 @@ function Game(){
     //  }
     //  
     //},[])
+
+
+    function modePlay() {
+      confirmAlert({
+        title: 'GAME MODE',
+        message: 'SELECT GAME MODE',
+        buttons: [
+          {
+            label: 'With Friend',
+            onClick: ()=>{setWithRobot(false)}
+          },
+          {
+            label: 'With Robot',
+            onClick: ()=>{setWithRobot(true)}
+          }
+        ]
+      });
+    }
+
+    //
+    React.useEffect(()=>{
+      if(withRobot){
+        setX(x-1)
+        robotPlay()
+        
+      }
+    },[replayR])
+
+    //
+    React.useEffect(()=>{
+      modePlay();
+    },[])
 
   //if the value of player is changed ... then we check if there is a winner by calling the function win();
     React.useEffect(()=>{
@@ -109,16 +153,62 @@ function Game(){
       }
       if(e.target.className !== "" || win()) return;
       if (player === "XElements") {
-        e.target.classList.remove("XElements");
-        e.target.classList.add("CercleElement");
+        e.target.className="CercleElement";
         setPlayer("CercleElement");
+        setX(x+1)
       } else {
-        e.target.classList.remove("CercleElement");
-        e.target.classList.add("XElements");
+        e.target.className="XElements";
         setPlayer("XElements");
+        setX(x+1)
       }
-      
+      if(withRobot && x%2===0){
+        setTimeout(() => {
+        {
+          robotPlay()}
+      }, 100);}
     }
+    function robotPlay() {
+      if (win()) return;
+    
+      const th = document.querySelectorAll('th');
+      for (let i = 0; i < index.length; i++) {
+        const [a, b, c] = index[i];
+        if (th[a].className === 'CercleElement' && th[b].className === 'CercleElement' && th[c].className === '') {
+          th[c].click();
+          return;
+        } else if (th[a].className === 'CercleElement' && th[c].className === 'CercleElement' && th[b].className === '') {
+          th[b].click();
+          return;
+        } else if (th[b].className === 'CercleElement' && th[c].className === 'CercleElement' && th[a].className === '') {
+          th[a].click();
+          return;
+        }
+      }
+    
+      for (let i = 0; i < index.length; i++) {
+        const [a, b, c] = index[i];
+        if (th[a].className === 'XElements' && th[b].className === 'XElements' && th[c].className === '') {
+          th[c].click();
+          return;
+        } else if (th[a].className === 'XElements' && th[c].className === 'XElements' && th[b].className === '') {
+          th[b].click();
+          return;
+        } else if (th[b].className === 'XElements' && th[c].className === 'XElements' && th[a].className === '') {
+          th[a].click();
+          return;
+        }
+      }
+    
+      for (let i = 0; i <= 8; i++) {
+        const indice = parseInt(Math.random() * 8) + 1;
+        const e = th[indice];
+        if (e.className === '') {
+          e.click();
+          return;
+        }
+      }
+    }
+    
 
   //replay() is the function called when the player want to replay the game (if there is a winner or game over without winner);
     function replay(){
@@ -130,6 +220,7 @@ function Game(){
       const btn = document.querySelector("#btnShowModal")
       if(document.contains(btn))
         deleteBtn()
+      setReplay(!replayR)
     }
 
     return(
